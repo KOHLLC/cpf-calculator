@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPF Monthly Calculator 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { height: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    max-width: 1550px; margin: 0 auto; padding: 20px 20px 0 20px;
+    background: #f0f2f5; color: #1a1a2e; line-height: 1.5;
+    height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; flex-shrink: 0; }
+  .subtitle { color: #6b7280; font-size: 14px; margin-bottom: 12px; flex-shrink: 0; }
+
+  .info {
+    background: #eff6ff; border-left: 3px solid #3b82f6; padding: 10px 14px;
+    border-radius: 8px; font-size: 12px; margin-bottom: 12px; color: #1e40af; flex-shrink: 0;
+  }
+  .info strong { color: #1e40af; }
+
+  /* Two-panel layout filling remaining viewport height */
+  .container {
+    display: grid;
+    grid-template-columns: minmax(360px, 380px) 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 20px;
+  }
+
+  /* LEFT panel: scrolls independently */
+  .sidebar {
+    background: white; border-radius: 14px; padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    overflow-y: auto; min-width: 360px;
+  }
+  .sidebar::-webkit-scrollbar { width: 5px; }
+  .sidebar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  .sidebar h2 { font-size: 14px; font-weight: 700; margin: 0 0 16px 0; color: #374151; border-bottom: 2px solid #3b82f6; padding-bottom: 8px; text-transform: uppercase; }
+
+  /* RIGHT panel: scrolls independently */
+  .main { min-width: 0; overflow-y: auto; overflow-x: hidden; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 10px; font-weight: 700; color: #374151; margin-bottom: 5px; text-transform: uppercase; }
+  .field input, .field select { width: 100%; padding: 9px 10px; border: 1.5px solid #e5e7eb; border-radius: 7px; font-size: 13px; background: #f9fafb; }
+  .field input:focus, .field select:focus { outline: none; border-color: #3b82f6; background: white; }
+
+  .deduction-group { background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .deduction-group h3 { margin: 0 0 14px 0; font-size: 12px; color: #dc2626; font-weight: 700; text-transform: uppercase; }
+  .deduction-item { margin-bottom: 16px; }
+  .deduction-item .ded-label { font-size: 10px; font-weight: 700; color: #374151; margin-bottom: 6px; text-transform: uppercase; display: block; }
+  .deduction-row { display: grid; grid-template-columns: minmax(110px, 1fr) 95px 80px; gap: 8px; align-items: end; }
+  .deduction-row .input-wrap { display: flex; flex-direction: column; min-width: 0; }
+  .deduction-row .input-wrap label { font-size: 9px; font-weight: 600; color: #9ca3af; margin-bottom: 3px; text-transform: uppercase; }
+  .deduction-row input, .deduction-row select { padding: 7px 8px; border: 1.5px solid #e5e7eb; border-radius: 5px; font-size: 12px; width: 100%; }
+
+  .bhs-note { font-size: 10px; color: #6b7280; margin-top: 4px; line-height: 1.4; }
+  .btn { background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+  .btn:hover { background: #059669; }
+
+  .section-title { font-size: 16px; font-weight: 700; color: #1f2937; margin: 0 0 12px; }
+  .toggle-section { margin-bottom: 16px; display: flex; gap: 6px; }
+  .toggle-btn { background: white; border: 1.5px solid #e5e7eb; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: #6b7280; }
+  .toggle-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+  .legend { display: flex; gap: 14px; font-size: 11px; margin-bottom: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: #4b5563; }
+  .legend-box { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
+
+  /* Table scrolls horizontally inside its own wrapper */
+  .table-wrap { overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  table { width: 100%; border-collapse: collapse; background: white; font-size: 11px; min-width: 1200px; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid #f3f4f6; }
+  th { background: #f9fafb; font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #4b5563; position: sticky; top: 0; z-index: 10; white-space: nowrap; }
+  tr:nth-child(even) { background: #fafbfc; }
+  tr:hover { background: #eff6ff; }
+  tr.year-end { background: #d1fae5 !important; }
+  tr.sa-closure { background: #fef3c7 !important; }
+  tr.rate-change { background: #ede9fe !important; }
+  tr.has-deduction { background: #fef2f2 !important; }
+  tr.interest-row { background: #dbeafe !important; font-weight: 600; }
+  td.date { text-align: left; font-weight: 700; font-size: 11px; color: #1f2937; white-space: nowrap; }
+
+  .pct { color: #9ca3af; font-size: 9px; }
+  .oa-pct { color: #3b82f6; }
+  .sa-pct { color: #f59e0b; }
+  .ma-pct { color: #10b981; }
+  .ra-pct { color: #8b5cf6; }
+  .deduct { color: #ef4444; font-weight: 600; }
+  .net { color: #059669; font-weight: 700; }
+  .in { color: #059669; }
+  .int { color: #2563eb; font-weight: 600; }
+
+
+  .rs-btn { background: white; border: 1.5px solid #e5e7eb; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; color: #6b7280; flex: 1; }
+  .rs-btn.active { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+  .rs-btn:hover:not(.active) { border-color: #8b5cf6; color: #8b5cf6; }
+  .hidden { display: none; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+
+  /* Narrow screens: revert to normal page scroll */
+  @media (max-width: 1200px) {
+    html { height: auto; }
+    body { height: auto; overflow: auto; display: block; padding: 20px; }
+    .container { grid-template-columns: 1fr; flex: none; overflow: visible; min-height: unset; padding-bottom: 0; }
+    .sidebar { overflow-y: visible; max-height: none; }
+    .main { overflow-y: visible; overflow-x: visible; }
+  }
+</style>
+</head>
+<body>
+  <h1>CPF Monthly Calculator 2026</h1>
+  <div class="subtitle">With monthly contributions, deductions &amp; annual CPF interest</div>
+
+  <div class="info">
+    <strong>Interest rates:</strong> OA 2.5%, SA/MA/RA 4%. Extra: &lt;55 +1% on first $60K (OA cap $20K); 55+ +2% on first $30K, +1% on next $30K. Interest computed monthly, credited annually.
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <h2>Inputs</h2>
+
+      <div class="field">
+        <label>Monthly Income ($)</label>
+        <input type="number" id="income" value="6700" min="0" step="100" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>Current Age</label>
+        <input type="number" id="currentAge" value="52" min="20" max="54" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>Birthday Month</label>
+        <select id="birthMonth" onchange="calculate()">
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7" selected>July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Start Month</label>
+        <select id="startMonth" onchange="calculate()">
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5" selected>May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Start Year</label>
+        <input type="number" id="startYear" value="2026" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>Current OA ($)</label>
+        <input type="number" id="oa" value="27411.28" step="1000" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>Current SA ($)</label>
+        <input type="number" id="sa" value="281500.44" step="1000" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>Current MA ($)</label>
+        <input type="number" id="ma" value="76220.05" step="1000" oninput="calculate()">
+      </div>
+      <div class="field">
+        <label>BHS / MA Ceiling ($)</label>
+        <input type="number" id="bhs" value="79000" min="40000" step="500" oninput="calculate()">
+        <div class="bhs-note">2026: $79,000. 2027: TBA (adjust to model).</div>
+      </div>
+
+
+      <div class="field">
+        <label>Retirement Sum Target ($)</label>
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <button class="rs-btn" onclick="setRS(110200)" title="Basic Retirement Sum">BRS</button>
+          <button class="rs-btn active" onclick="setRS(220400)" title="Full Retirement Sum">FRS</button>
+          <button class="rs-btn" onclick="setRS(426000)" title="Enhanced Retirement Sum">ERS</button>
+        </div>
+        <input type="number" id="rs" value="220400" min="50000" step="100" oninput="FRS=parseFloat(this.value)||220400;calculate()">
+        <div class="bhs-note">2026: BRS $110,200 · FRS $220,400 · ERS $426,000</div>
+      </div>
+
+      <div class="deduction-group">
+        <h3>Monthly Deductions</h3>
+        <div class="deduction-item">
+          <span class="ded-label">Housing from OA ($)</span>
+          <div class="deduction-row">
+            <div class="input-wrap"><label>Amount</label><input type="number" id="housing" value="0" min="0" step="100" oninput="calculate()"></div>
+            <div class="input-wrap"><label>Type</label><select id="housingType" onchange="calculate()"><option value="recurring" selected>Recurring</option><option value="oneoff">One-off</option></select></div>
+            <div class="input-wrap"><label>Month</label><select id="housingMonth" onchange="calculate()"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5" selected>May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select></div>
+          </div>
+        </div>
+        <div class="deduction-item">
+          <span class="ded-label">Insurance from OA ($)</span>
+          <div class="deduction-row">
+            <div class="input-wrap"><label>Amount</label><input type="number" id="insuranceOA" value="0" min="0" step="50" oninput="calculate()"></div>
+            <div class="input-wrap"><label>Type</label><select id="insuranceOAType" onchange="calculate()"><option value="recurring" selected>Recurring</option><option value="oneoff">One-off</option></select></div>
+            <div class="input-wrap"><label>Month</label><select id="insuranceOAMonth" onchange="calculate()"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5" selected>May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select></div>
+          </div>
+        </div>
+        <div class="deduction-item">
+          <span class="ded-label">Insurance from MA ($)</span>
+          <div class="deduction-row">
+            <div class="input-wrap"><label>Amount</label><input type="number" id="insuranceMA" value="0" min="0" step="50" oninput="calculate()"></div>
+            <div class="input-wrap"><label>Type</label><select id="insuranceMAType" onchange="calculate()"><option value="recurring" selected>Recurring</option><option value="oneoff">One-off</option></select></div>
+            <div class="input-wrap"><label>Month</label><select id="insuranceMAMonth" onchange="calculate()"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5" selected>May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" onclick="downloadCSV()">Download CSV</button>
+    </div>
+
+    <div class="main">
+      <div class="toggle-section">
+        <button class="toggle-btn active" onclick="showView('net')">Net Balance View</button>
+        <button class="toggle-btn" onclick="showView('split')">Monthly Split View</button>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#d1fae5"></div>Year-end</div>
+        <div class="legend-item"><div class="legend-box" style="background:#fef3c7"></div>SA closure</div>
+        <div class="legend-item"><div class="legend-box" style="background:#dbeafe"></div>CPF Interest</div>
+        <div class="legend-item"><div class="legend-box" style="background:#ede9fe"></div>Rate change</div>
+        <div class="legend-item"><div class="legend-box" style="background:#fef2f2"></div>Has deduction</div>
+      </div>
+
+      <div id="netView">
+        <div class="section-title">Net Balance (with Annual CPF Interest)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Month</th><th>Age</th>
+                <th>OA +</th><th>SA +</th><th>MA +</th><th>RA +</th>
+                <th class="deduct">Housing</th><th class="deduct">Ins OA</th><th class="deduct">Ins MA</th>
+                <th class="int">Int OA</th><th class="int">Int SA</th><th class="int">Int MA</th><th class="int">Int RA</th>
+                <th class="net">Net OA</th><th class="net">Net SA</th><th class="net">Net MA</th><th class="net">Net RA</th>
+                <th class="net">Total</th><th style="text-align:left">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="netTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="splitView" class="hidden">
+        <div class="section-title">Monthly Contribution Split (Gross)</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Month</th><th>Age</th><th>Total CPF</th>
+                <th>&rarr; OA</th><th>&rarr; SA</th><th>&rarr; MA</th><th>&rarr; RA</th>
+                <th>OA%</th><th>SA%</th><th>MA%</th><th>RA%</th>
+                <th style="text-align:left">Overflow</th>
+              </tr>
+            </thead>
+            <tbody id="splitTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+let FRS=220400; const SALARY_CEILING=8000,OA_RATE=0.025,SMRA_RATE=0.04;
+function getAge(y,m,by,bm){let a=y-by;if(m<bm)a--;return a;}
+function getAllocPre55(a){if(a<=35)return{OA:0.6217,SA:0.1621,MA:0.2162};if(a<=45)return{OA:0.5677,SA:0.1891,MA:0.2432};if(a<=50)return{OA:0.5136,SA:0.2162,MA:0.2703};return{OA:0.4055,SA:0.3108,MA:0.2837};}
+function getAllocPost55(a){if(a<=60)return{OA:0.3530,RA:0.3382,MA:0.3088};if(a<=65)return{OA:0.1400,RA:0.4400,MA:0.4200};if(a<=70)return{OA:0.0607,RA:0.3030,MA:0.6363};return{OA:0.0800,RA:0.0800,MA:0.8400};}
+function getContribRate(a){if(a<=55)return 0.37;if(a<=60)return 0.34;if(a<=65)return 0.25;if(a<=70)return 0.165;return 0.125;}
+function formatMoney(n){return'$'+Math.round(n).toLocaleString('en-US');}
+function monthName(m){return['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];}
+function calcExtraInterest(age,OA,SA,MA,RA){
+  let eOA=0,eSA=0,eMA=0,eRA=0;const c=OA+SA+MA+RA;
+  if(age<55){const et=Math.min(c,60000),eo=Math.min(OA,20000),en=Math.min(SA+MA+RA,et-eo),ae=eo+Math.max(0,en),me=ae*0.01/12;
+    if(ae>0){const os=eo/ae;eOA=me*os;const nos=1-os,noc=SA+MA+RA;if(noc>0){eSA=me*nos*(SA/noc);eMA=me*nos*(MA/noc);eRA=me*nos*(RA/noc);}}}
+  else{const t1=Math.min(c,30000),t1o=Math.min(OA,20000),t1n=Math.min(SA+MA+RA,t1-t1o),at1=t1o+Math.max(0,t1n),me1=at1*0.02/12;
+    const t2=Math.min(Math.max(0,c-30000),30000),ro=Math.max(0,OA-20000),t2o=Math.min(ro,20000),un1=Math.max(0,t1n),t2n=Math.min(Math.max(0,SA+MA+RA-un1),t2-t2o),at2=t2o+Math.max(0,t2n),me2=at2*0.01/12;
+    const te=me1+me2,tl=at1+at2;
+    if(tl>0){const eo2=t1o+t2o,os=eo2/tl;eOA=te*os;const nos=1-os,noc=SA+MA+RA;if(noc>0){eSA=te*nos*(SA/noc);eMA=te*nos*(MA/noc);eRA=te*nos*(RA/noc);}}}
+  return{OA:eOA,SA:eSA,MA:eMA,RA:eRA};
+}
+function setRS(val){
+  FRS=val;
+  document.getElementById('rs').value=val;
+  document.querySelectorAll('.rs-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  calculate();
+}
+function calculate(){
+  const income=parseFloat(document.getElementById('income').value)||0;
+  const currentAge=parseInt(document.getElementById('currentAge').value)||52;
+  const birthdayMonth=parseInt(document.getElementById('birthMonth').value)||7;
+  const startMonth=parseInt(document.getElementById('startMonth').value)||5;
+  const startYear=parseInt(document.getElementById('startYear').value)||2026;
+  let OA=parseFloat(document.getElementById('oa').value)||0;
+  let SA=parseFloat(document.getElementById('sa').value)||0;
+  let MA=parseFloat(document.getElementById('ma').value)||0;
+  const BHS=parseFloat(document.getElementById('bhs').value)||79000;
+  const housing=parseFloat(document.getElementById('housing').value)||0;
+  const housingType=document.getElementById('housingType').value;
+  const housingMonth=parseInt(document.getElementById('housingMonth').value)||5;
+  const insuranceOA=parseFloat(document.getElementById('insuranceOA').value)||0;
+  const insuranceOAType=document.getElementById('insuranceOAType').value;
+  const insuranceOAMonth=parseInt(document.getElementById('insuranceOAMonth').value)||5;
+  const insuranceMA=parseFloat(document.getElementById('insuranceMA').value)||0;
+  const insuranceMAType=document.getElementById('insuranceMAType').value;
+  const insuranceMAMonth=parseInt(document.getElementById('insuranceMAMonth').value)||5;
+  const birthYear=startYear-currentAge;
+  let y=startYear,m=startMonth,age=getAge(y,m,birthYear,birthdayMonth),RA=0;
+  const records=[];
+  let hA=false,iOAA=false,iMAA=false,yiOA=0,yiSA=0,yiMA=0,yiRA=0;
+  while(age<=65){
+    const sc=Math.min(income,SALARY_CEILING),mt=sc*getContribRate(age);
+    let oaIn=0,saIn=0,maIn=0,raIn=0,ov='',irc=false,isc=false,notes=[];
+    const nm=m===12?1:m+1,ny=m===12?y+1:y,na=getAge(ny,nm,birthYear,birthdayMonth);
+    if(na!==age&&m===birthdayMonth){notes.push("Age "+na);irc=true;}
+    if(age<55){
+      const al=getAllocPre55(age);oaIn=mt*al.OA;saIn=mt*al.SA;maIn=mt*al.MA;
+      OA+=oaIn;SA+=saIn;MA+=maIn;
+      if(MA>BHS){const ov2=MA-BHS;if(SA>=FRS){OA+=ov2;ov="MA→OA "+formatMoney(ov2);}else{const ts=Math.min(ov2,FRS-SA);SA+=ts;OA+=ov2-ts;ov=ts<ov2?"MA→SA "+formatMoney(ts)+", MA→OA "+formatMoney(ov2-ts):"MA→SA "+formatMoney(ov2);}MA=BHS;}
+    }else{
+      const al=getAllocPost55(age);oaIn=mt*al.OA;maIn=mt*al.MA;raIn=mt*al.RA;OA+=oaIn;MA+=maIn;
+      if(RA<FRS){const tr=Math.min(raIn,FRS-RA);RA+=tr;OA+=raIn-tr;raIn=tr;}else{OA+=raIn;raIn=0;}
+      if(MA>BHS){const ov2=MA-BHS;if(RA<FRS){const tr=Math.min(ov2,FRS-RA);RA+=tr;OA+=ov2-tr;ov="MA→RA "+formatMoney(tr)+", MA→OA "+formatMoney(ov2-tr);}else{OA+=ov2;ov="MA→OA "+formatMoney(ov2);}MA=BHS;}
+    }
+    yiOA+=OA*OA_RATE/12;yiSA+=SA*SMRA_RATE/12;yiMA+=MA*SMRA_RATE/12;yiRA+=RA*SMRA_RATE/12;
+    const ex=calcExtraInterest(age,OA,SA,MA,RA);yiOA+=ex.OA;yiSA+=ex.SA;yiMA+=ex.MA;yiRA+=ex.RA;
+    let hD=0,iOAD=0,iMAD=0;
+    if(housing>0){if(housingType==='recurring')hD=housing;else if(!hA&&m===housingMonth){hD=housing;hA=true;notes.push("One-off housing");}}
+    if(insuranceOA>0){if(insuranceOAType==='recurring')iOAD=insuranceOA;else if(!iOAA&&m===insuranceOAMonth){iOAD=insuranceOA;iOAA=true;notes.push("One-off ins OA");}}
+    if(insuranceMA>0){if(insuranceMAType==='recurring')iMAD=insuranceMA;else if(!iMAA&&m===insuranceMAMonth){iMAD=insuranceMA;iMAA=true;notes.push("One-off ins MA");}}
+    OA-=hD+iOAD;MA-=iMAD;
+    if(OA<0){notes.push("OA insufficient!");OA=0;}if(MA<0){notes.push("MA insufficient!");MA=0;}
+    if(age===55&&m===birthdayMonth){
+      isc=true;const str=Math.min(SA,FRS-RA);RA+=str;SA-=str;
+      if(SA>0){OA+=SA;notes.push("SA→OA "+formatMoney(SA));SA=0;}
+      if(RA<FRS){const fo=Math.min(OA,FRS-RA);RA+=fo;OA-=fo;notes.push("OA→RA "+formatMoney(fo));}
+      notes.push("SA CLOSED");
+    }
+    const hDed=hD>0||iOAD>0||iMAD>0;
+    const ap=age<55?getAllocPre55(age):getAllocPost55(age);
+    records.push({date:monthName(m)+' '+y,year:y,month:m,age,totalCPF:Math.round(mt),
+      oaIn:Math.round(oaIn),saIn:Math.round(saIn),maIn:Math.round(maIn),raIn:Math.round(raIn),
+      housing:Math.round(hD),insOA:Math.round(iOAD),insMA:Math.round(iMAD),
+      OA:Math.round(OA),SA:Math.round(SA),MA:Math.round(MA),RA:Math.round(RA),total:Math.round(OA+SA+MA+RA),
+      overflow:ov,notes:notes.join(', '),isYearEnd:m===12,isSaClosure:isc,isRateChange:irc,hasDeduction:hDed,
+      oaPct:ap.OA||0,saPct:ap.SA||0,maPct:ap.MA||0,raPct:ap.RA||0,
+      intOA:0,intSA:0,intMA:0,intRA:0,isInterestRow:false});
+    if(m===12){
+      const iOA=Math.round(yiOA),iSA=Math.round(yiSA),iMA=Math.round(yiMA),iRA=Math.round(yiRA);
+      OA+=iOA;SA+=iSA;MA+=iMA;RA+=iRA;
+      records.push({date:"CPF Interest "+y,year:y,month:12,age,totalCPF:0,oaIn:0,saIn:0,maIn:0,raIn:0,housing:0,insOA:0,insMA:0,
+        OA:Math.round(OA),SA:Math.round(SA),MA:Math.round(MA),RA:Math.round(RA),total:Math.round(OA+SA+MA+RA),
+        overflow:'',notes:'Interest credited',isYearEnd:false,isSaClosure:false,isRateChange:false,hasDeduction:false,
+        oaPct:0,saPct:0,maPct:0,raPct:0,intOA:iOA,intSA:iSA,intMA:iMA,intRA:iRA,isInterestRow:true});
+      yiOA=yiSA=yiMA=yiRA=0;
+    }
+    m++;if(m>12){m=1;y++;}age=getAge(y,m,birthYear,birthdayMonth);
+  }
+  let nb='';
+  for(const r of records){
+    let rc=r.isInterestRow?'interest-row':r.isYearEnd?'year-end':r.isSaClosure?'sa-closure':r.isRateChange?'rate-change':r.hasDeduction?'has-deduction':'';
+    nb+=`<tr class="${rc}"><td class="date">${r.date}</td><td>${r.age}</td>`;
+    nb+=`<td class="in">${r.oaIn>0?'+'+formatMoney(r.oaIn):'&mdash;'}</td>`;
+    nb+=`<td class="in">${r.saIn>0?'+'+formatMoney(r.saIn):'&mdash;'}</td>`;
+    nb+=`<td class="in">${r.maIn>0?'+'+formatMoney(r.maIn):'&mdash;'}</td>`;
+    nb+=`<td class="in">${r.raIn>0?'+'+formatMoney(r.raIn):'&mdash;'}</td>`;
+    nb+=`<td class="deduct">${r.housing>0?'-'+formatMoney(r.housing):'&mdash;'}</td>`;
+    nb+=`<td class="deduct">${r.insOA>0?'-'+formatMoney(r.insOA):'&mdash;'}</td>`;
+    nb+=`<td class="deduct">${r.insMA>0?'-'+formatMoney(r.insMA):'&mdash;'}</td>`;
+    nb+=`<td class="int">${r.intOA>0?'+'+formatMoney(r.intOA):'&mdash;'}</td>`;
+    nb+=`<td class="int">${r.intSA>0?'+'+formatMoney(r.intSA):'&mdash;'}</td>`;
+    nb+=`<td class="int">${r.intMA>0?'+'+formatMoney(r.intMA):'&mdash;'}</td>`;
+    nb+=`<td class="int">${r.intRA>0?'+'+formatMoney(r.intRA):'&mdash;'}</td>`;
+    nb+=`<td class="net">${formatMoney(r.OA)}</td><td class="net">${formatMoney(r.SA)}</td>`;
+    nb+=`<td class="net">${formatMoney(r.MA)}</td><td class="net">${formatMoney(r.RA)}</td>`;
+    nb+=`<td class="net"><strong>${formatMoney(r.total)}</strong></td>`;
+    nb+=`<td style="text-align:left;font-size:10px;color:#6b7280">${r.overflow?r.overflow+', ':''}${r.notes}</td></tr>`;
+  }
+  document.getElementById('netTable').innerHTML=nb;
+  let sb='';
+  for(const r of records){
+    if(r.isInterestRow)continue;
+    let rc=r.isYearEnd?'year-end':r.isSaClosure?'sa-closure':r.isRateChange?'rate-change':'';
+    sb+=`<tr class="${rc}"><td class="date">${r.date}</td><td>${r.age}</td>`;
+    sb+=`<td><strong>${formatMoney(r.totalCPF)}</strong></td>`;
+    sb+=`<td>${formatMoney(r.oaIn)} <span class="pct oa-pct">(${(r.oaPct*100).toFixed(1)}%)</span></td>`;
+    sb+=`<td>${formatMoney(r.saIn)} <span class="pct sa-pct">(${(r.saPct*100).toFixed(1)}%)</span></td>`;
+    sb+=`<td>${formatMoney(r.maIn)} <span class="pct ma-pct">(${(r.maPct*100).toFixed(1)}%)</span></td>`;
+    sb+=`<td>${formatMoney(r.raIn)} <span class="pct ra-pct">(${(r.raPct*100).toFixed(1)}%)</span></td>`;
+    sb+=`<td class="oa-pct">${(r.oaPct*100).toFixed(1)}%</td><td class="sa-pct">${(r.saPct*100).toFixed(1)}%</td>`;
+    sb+=`<td class="ma-pct">${(r.maPct*100).toFixed(1)}%</td><td class="ra-pct">${(r.raPct*100).toFixed(1)}%</td>`;
+    sb+=`<td style="text-align:left;font-size:10px;color:#6b7280">${r.overflow}</td></tr>`;
+  }
+  document.getElementById('splitTable').innerHTML=sb;
+  window._monthlyRecords=records;
+}
+function showView(view){
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('netView').classList.toggle('hidden',view!=='net');
+  document.getElementById('splitView').classList.toggle('hidden',view==='net');
+}
+function downloadCSV(){
+  if(!window._monthlyRecords){alert('Calculate first');return;}
+  const h=['Month','Year','Age','OA_In','SA_In','MA_In','RA_In','Housing_Ded','Insurance_OA','Insurance_MA','Int_OA','Int_SA','Int_MA','Int_RA','Net_OA','Net_SA','Net_MA','Net_RA','Total','Notes'];
+  const rows=window._monthlyRecords.map(r=>[r.isInterestRow?'Interest':monthName(r.month),r.year,r.age,r.oaIn,r.saIn,r.maIn,r.raIn,r.housing,r.insOA,r.insMA,r.intOA,r.intSA,r.intMA,r.intRA,r.OA,r.SA,r.MA,r.RA,r.total,r.notes]);
+  const csv=[h,...rows].map(row=>row.map(v=>'"'+v+'"').join(',')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a=document.createElement('a');a.href=url;a.download='cpf_monthly_net_interest.csv';a.click();URL.revokeObjectURL(url);
+}
+calculate();
+</script>
+</body>
+</html>
+
